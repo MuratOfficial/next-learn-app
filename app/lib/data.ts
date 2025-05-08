@@ -5,7 +5,7 @@ import {
   InvoiceForm,
   InvoicesTable,
   LatestInvoiceRaw,
-  Revenue,
+  Revenue, User
 } from './definitions';
 import { formatCurrency } from './utils';
 
@@ -45,6 +45,25 @@ export async function fetchLatestInvoices() {
       amount: formatCurrency(invoice.amount),
     }));
     return latestInvoices;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch the latest invoices.');
+  }
+}
+
+export async function fetchUserName() {
+  try {
+    const data = await sql<User[]>`
+      SELECT users.id, users.name, users.email
+      FROM users
+      JOIN customers ON invoices.customer_id = customers.id
+      `;
+
+    const users = data.map((user) => ({
+      ...user,
+    }));
+
+    return users;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch the latest invoices.');
